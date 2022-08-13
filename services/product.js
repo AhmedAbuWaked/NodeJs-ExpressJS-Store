@@ -2,17 +2,35 @@ const slugify = require("slugify");
 const asyncHandler = require("express-async-handler");
 const ApiError = require("../utils/apiError");
 
+const CategoryModel = require("../models/category");
 const ProductModel = require("../models/product");
 
 // @desc Get All Products
 // @route GET /api/v1/products
 // @access Public
 exports.getProducts = asyncHandler(async (req, res) => {
-  const page = req.query.page * 1 || 1;
-  const limit = req.query.limit * 1 || 5;
-  const skip = (page - 1) * limit;
+  const { page, limit, ...otherData } = req.query;
 
-  const products = await ProductModel.find({}).skip(skip).limit(limit);
+  let queryString = JSON.stringify(otherData);
+
+  queryString = queryString.replace(
+    /\b()gte|gt|lte|lt\b/g,
+    (match) => `$${match}`
+  );
+
+  const pageNumber = page * 1 || 1;
+  const pageSize = limit * 1 || 5;
+  const skip = (pageNumber - 1) * pageSize;
+
+  const query = ProductModel.find(JSON.parse(queryString))
+    .skip(skip)
+    .limit(pageSize)
+    .populate({
+      path: "category",
+      select: "name -_id",
+    });
+
+  const products = await query;
 
   res.status(200).json({ result: products.length, page, data: products });
 });
@@ -22,7 +40,10 @@ exports.getProducts = asyncHandler(async (req, res) => {
 // @access Public
 exports.singleProduct = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
-  const product = await ProductModel.findById(id);
+  const product = await ProductModel.findById(id).populate({
+    path: "category",
+    select: "name -_id",
+  });
 
   if (!product) {
     return next(ApiError(`No Product Found in this id: ${id}`, 404));
