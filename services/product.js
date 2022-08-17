@@ -1,3 +1,6 @@
+const sharp = require("sharp");
+const { v4: uuidv4 } = require("uuid");
+const { uploadMixImaages } = require("../middlewares/uploadImage");
 const ProductModel = require("../models/product");
 const {
   deleteOne,
@@ -6,6 +9,63 @@ const {
   getOne,
   getAll,
 } = require("./handlerFactory");
+
+exports.uploadImages = uploadMixImaages([
+  {
+    name: "imageCover",
+    maxCount: 1,
+  },
+  {
+    name: "images",
+    maxCount: 5,
+  },
+]);
+
+exports.resizeProductImages = async (req, res, next) => {
+  // Image Cover Processing
+  if (req.files.imageCover) {
+    const imageCoverFilename = `product-${uuidv4()}-${Date.now()}-cover.jpeg`;
+
+    await sharp(req.files.imageCover[0].buffer)
+      .resize({
+        fit: "contain",
+        width: 600,
+        height: 600,
+      })
+      .toFormat("jpeg")
+      .jpeg({
+        quality: 90,
+      })
+      .toFile(`uploads/products/${imageCoverFilename}`);
+
+    req.body.imageCover = imageCoverFilename;
+  }
+
+  // Product Images Processing
+  if (req.files.images) {
+    req.body.images = await Promise.all(
+      req.files.images.map(async (img, index) => {
+        const imageName = `product-${uuidv4()}-${Date.now()}-${index + 1}.jpeg`;
+
+        await sharp(img.buffer)
+          .resize({
+            fit: "contain",
+            width: 2000,
+            height: 1333,
+          })
+          .toFormat("jpeg")
+          .jpeg({
+            quality: 90,
+          })
+          .toFile(`uploads/products/${imageName}`);
+
+        return imageName;
+      })
+    );
+  }
+
+  next();
+};
 
 // @desc Get All Products
 // @route GET /api/v1/products
