@@ -14,11 +14,12 @@ const {
   deleteUserValidator,
   getUserValidator,
   updateUserValidator,
+  updateUserPassword,
 } = require("../validator/user");
 
 const router = express.Router();
 
-router.route("/change-password/:id").put(changePassword);
+router.route("/change-password/:id").put(updateUserPassword, changePassword);
 router
   .route("/")
   .get(getUsers)
