@@ -70,7 +70,10 @@ exports.changePassword = asyncHandler(async (req, res, next) => {
   const { password } = req.body;
   const document = await userModel.findByIdAndUpdate(
     req.params.id,
-    { password: await bcrybt.hash(password, 12) },
+    {
+      password: await bcrybt.hash(password, 12),
+      passwordUpdatedAt: Date.now(),
+    },
     { new: true } // To Return New Object (After Update)
   );
 

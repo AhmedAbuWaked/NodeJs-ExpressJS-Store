@@ -25,9 +25,10 @@ const userSchema = new mongoose.Schema(
       required: [true, "Password is required"],
       minlength: [6, "Password is too short"],
     },
+    passwordUpdatedAt: Date,
     role: {
       type: String,
-      enum: ["user", "admin"],
+      enum: ["user", "manager0", "admin"],
       default: "user",
     },
     active: {

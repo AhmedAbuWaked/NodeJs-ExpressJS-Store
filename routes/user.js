@@ -1,4 +1,5 @@
 const express = require("express");
+const { protect, allowedTo } = require("../services/auth");
 const {
   createUser,
   deleteUser,
@@ -22,12 +23,26 @@ const router = express.Router();
 router.route("/change-password/:id").put(updateUserPassword, changePassword);
 router
   .route("/")
-  .get(getUsers)
-  .post(uploadUserImage, resizeImage, createUserValidator, createUser);
+  .get(protect, allowedTo("admin", "manager"), getUsers)
+  .post(
+    protect,
+    allowedTo("admin"),
+    uploadUserImage,
+    resizeImage,
+    createUserValidator,
+    createUser
+  );
 router
   .route("/:id")
   .get(getUserValidator, singleUser)
-  .put(uploadUserImage, resizeImage, updateUserValidator, updateUser)
-  .delete(deleteUserValidator, deleteUser);
+  .put(
+    protect,
+    allowedTo("admin"),
+    uploadUserImage,
+    resizeImage,
+    updateUserValidator,
+    updateUser
+  )
+  .delete(protect, allowedTo("admin"), deleteUserValidator, deleteUser);
 
 module.exports = router;

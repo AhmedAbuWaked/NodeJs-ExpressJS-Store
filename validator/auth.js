@@ -45,3 +45,16 @@ exports.signUpValidator = [
     }),
   validator,
 ];
+exports.loginValidator = [
+  check("email")
+    .notEmpty()
+    .withMessage("Email Required")
+    .isEmail()
+    .withMessage("Invalid Email"),
+  check("password")
+    .notEmpty()
+    .withMessage("Password required")
+    .isLength({ min: 6 })
+    .withMessage("Password must be at least 6 charachter"),
+  validator,
+];
