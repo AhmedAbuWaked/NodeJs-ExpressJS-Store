@@ -7,6 +7,7 @@ const { uploadSingleImage } = require("../middlewares/uploadImage");
 const userModel = require("../models/user");
 const ApiError = require("../utils/apiError");
 const { deleteOne, createOne, getOne, getAll } = require("./handlerFactory");
+const createToken = require("../utils/createToken");
 
 // ****** Upload Single Image ****** /
 exports.uploadUserImage = uploadSingleImage("avatar");
@@ -88,3 +89,61 @@ exports.changePassword = asyncHandler(async (req, res, next) => {
 // @route DELETE /api/v1/users/:id
 // @access Private
 exports.deleteUser = deleteOne(userModel);
+
+// @desc Get Logged User Data
+// @route GET /api/v1/users/myProfile
+// @access Private/Protect
+exports.getLoggedUserData = asyncHandler(async (req, res, next) => {
+  req.params.id = req.user._id;
+
+  next();
+});
+
+// @desc Update Logged User Password
+// @route PUT /api/v1/users/updatePassword
+// @access Private/Protect
+exports.updateLoggedUserPassword = asyncHandler(async (req, res, next) => {
+  const { password } = req.body;
+  const user = await userModel.findByIdAndUpdate(
+    req.user._id,
+    {
+      password: await bcrybt.hash(password, 12),
+      passwordUpdatedAt: Date.now(),
+    },
+    { new: true } // To Return New Object (After Update)
+  );
+
+  const token = createToken({ userId: user._id });
+
+  res.status(200).json({
+    token,
+    data: user,
+  });
+});
+
+// @desc Update Logged User Data (without password, roles)
+// @route PUT /api/v1/users/updateProfile
+// @access Private/Protect
+exports.updateLoggedUserData = asyncHandler(async (req, res, next) => {
+  const { email, name, phone } = req.body;
+  const updatedUser = await userModel.findByIdAndUpdate(
+    req.user._id,
+    { email, name, phone },
+    { new: true }
+  );
+
+  res.status(200).json({
+    data: updatedUser,
+  });
+});
+
+// @desc DeActivate Logged User
+// @route PUT /api/v1/users/deactivate
+// @access Private/Protect
+exports.deactivateLoggedUser = asyncHandler(async (req, res, next) => {
+  await userModel.findByIdAndUpdate(req.user._id, { active: false });
+
+  res.status(204).json({
+    status: "Success",
+  });
+});

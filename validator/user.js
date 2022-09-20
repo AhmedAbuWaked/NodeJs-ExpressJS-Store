@@ -89,6 +89,32 @@ exports.updateUserValidator = [
   validator,
 ];
 
+exports.updateLoggedUserValidator = [
+  body("name")
+    .optional()
+    .custom((val, { req }) => {
+      req.body.slug = slugify(val);
+      return true;
+    }),
+  check("email")
+    .notEmpty()
+    .withMessage("Email Required")
+    .isEmail()
+    .withMessage("Invalid Email")
+    .custom(async (email) => {
+      const user = await UserModel.findOne({ email });
+      if (user) {
+        throw new Error("E-mail Already Exist");
+      }
+    }),
+  check("phone")
+    .optional()
+    .isMobilePhone(["ar-PS", "ar-SA"])
+    .withMessage("Invalid Phone number only accept PS or SA phone numbers"),
+
+  validator,
+];
+
 exports.updateUserPassword = [
   body("old_password")
     .notEmpty()
