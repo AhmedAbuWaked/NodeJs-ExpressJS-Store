@@ -51,7 +51,7 @@ exports.login = asyncHandler(async (req, res, next) => {
 });
 
 // @desc Check if user is Logged In
-exports.protect = asyncHandler(async (req, res, next) => {
+exports.protect = asyncHandler(async (req, _res, next) => {
   let token;
   if (
     req.headers.authorization &&

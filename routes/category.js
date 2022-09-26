@@ -19,6 +19,7 @@ const {
   deleteCategoryValidator,
 } = require("../validator/category");
 
+// Nested Route categories/:categoryId/subcategories
 router.use("/:categoryId/subcategories", require("./subCategory"));
 
 router

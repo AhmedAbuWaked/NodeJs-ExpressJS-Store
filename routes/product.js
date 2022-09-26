@@ -18,6 +18,9 @@ const {
   updateProductValidator,
 } = require("../validator/product");
 
+// Nested Route /products/:productId/reviews
+router.use("/:productId/reviews", require("./reviews"));
+
 router
   .route("/")
   .get(getProducts)

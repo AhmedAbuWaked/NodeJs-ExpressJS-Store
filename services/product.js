@@ -78,7 +78,10 @@ exports.getProducts = getAll({
 // @desc Get Specific Product by id
 // @route GET /api/v1/products/:id
 // @access Public
-exports.singleProduct = getOne(ProductModel);
+exports.singleProduct = getOne(ProductModel, {
+  // <== populationOption is optional here (if you want to populate some fields)
+  path: "reviews", // <== populationOption example (if you want to populate some fields)
+});
 
 // @desc Create Product
 // @route POST /api/v1/products
