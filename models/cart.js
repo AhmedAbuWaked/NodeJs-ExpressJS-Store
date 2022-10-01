@@ -2,17 +2,16 @@ const mongoose = require("mongoose");
 
 const cartSchema = new mongoose.Schema(
   {
-    user: {
-      type: mongoose.Schema.objectId,
-      ref: "User",
-    },
     cartItems: [
       {
         product: {
-          type: mongoose.Schema.objectId,
+          type: mongoose.Schema.ObjectId,
           ref: "Product",
         },
-        quantity: Number,
+        quantity: {
+          type: Number,
+          default: 1,
+        },
         color: String,
         price: Number,
       },
@@ -20,11 +19,16 @@ const cartSchema = new mongoose.Schema(
     totalCartPrice: Number,
     totalPriceAfterDiscount: Number,
     couponApplied: {
-      type: mongoose.Schema.objectId,
+      type: mongoose.Schema.ObjectId,
       ref: "Coupon",
     },
+    user: {
+      type: mongoose.Schema.ObjectId,
+      ref: "User",
+      required: [true, "Cart Must Belong to user"],
+    },
   },
-  { timeseries: true }
+  { timestamps: true }
 );
 
 module.exports = mongoose.model("Cart", cartSchema);

@@ -12,5 +12,6 @@ router.use("/auth", require("./auth"));
 router.use("/wishlist", require("./wishlist"));
 router.use("/addresses", require("./address"));
 router.use("/coupons", require("./coupon"));
+router.use("/cart", require("./cart"));
 
 module.exports = router;
