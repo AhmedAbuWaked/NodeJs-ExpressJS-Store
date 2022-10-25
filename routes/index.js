@@ -13,5 +13,6 @@ router.use("/wishlist", require("./wishlist"));
 router.use("/addresses", require("./address"));
 router.use("/coupons", require("./coupon"));
 router.use("/cart", require("./cart"));
+router.use("/orders", require("./order"));
 
 module.exports = router;
